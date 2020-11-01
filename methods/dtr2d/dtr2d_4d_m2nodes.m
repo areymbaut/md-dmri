@@ -1,5 +1,8 @@
 function nodes4d = dtr2d_4d_m2nodes(mfs_fn, opt)
-% function mfs = dtr2d_4d_m2nodes(mfs_fn, mfs_fn, opt)
+% function nodes4d = dtr2d_4d_m2nodes(mfs_fn, opt)
+% 
+% Combines the nodes of a given voxel with the nodes of its 6
+% near-neighbours
 
 if (nargin < 2), mfs_fn = []; end
 if (nargin < 3), opt = []; end
@@ -17,7 +20,6 @@ nodes4d = zeros(sz(1),sz(2),sz(3),(1+opt.dtr2d.n_out*7*5));
 for nk = 1:sz(3)
     for nj = 1:sz(2)
         for ni = 1:sz(1)
-            %ni = 30; nj = 30; nk = 8;
             if M(ni,nj,nk)
                 m = squeeze(m4d(ni,nj,nk,:))';
                 dtr2d = dtr2d_m2dtr2d(m);
@@ -50,15 +52,6 @@ for nk = 1:sz(3)
                 
                 nodes4d(ni,nj,nk,1:numel(dtr2d_nodes)) = dtr2d_nodes;
                                 
-%                 figure(1), clf
-%                 [n,par,perp,theta,phi,r2] = dtr2d_nodes2par(dtr2d_nodes);
-%                 plot(log10(par),log10(perp),'bo','MarkerSize',5)
-%                 hold on
-%                 [n,par,perp,theta,phi,r2] = dtr2d_nodes2par(dtr2d_nodes000);
-%                 plot(log10(par),log10(perp),'ko','MarkerSize',10)
-%                 axis('equal')
-%                 title([num2str(ni) ' ' num2str(nj) ' ' num2str(nk)])
-%                 pause(.05)
             end
         end
     end

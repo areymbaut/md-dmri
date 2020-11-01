@@ -1,4 +1,4 @@
-function dtr2d_nodes_out = dtr2d_mutate(dtr2d_nodes,opt)
+function dtr2d_nodes_out = dtr2d_nodes_mutate(dtr2d_nodes,opt)
 
 [n,par,perp,theta,phi,r2] = dtr2d_nodes2par(dtr2d_nodes);
 

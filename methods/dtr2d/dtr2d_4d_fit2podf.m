@@ -1,24 +1,13 @@
-function odf = dtr2d_4d_fit2podf(mfs_fn, odf_fn, opt)
-% function odf = dtr2d_4d_fit2odf(mfs_fn, odf_fn, opt)
+function odf = dtr2d_4d_fit2podf(mfs_fn, opt)
+% function odf = dtr2d_4d_fit2odf(mfs_fn, opt)
 
-if (nargin < 2), dps_fn = []; end
-if (nargin < 3), opt = []; end
-
-opt = mdm_opt(opt);
-opt = dtr2d_opt(opt);
-%mfs = mdm_mfs_load(mfs_fn);
-
-% Hack to allow mgui to access this function
-if ischar(mfs_fn)
-    mfs = mdm_mfs_load(mfs_fn);
-else
-    m = mfs_fn;
-    mfs.m = m;
-    mfs.mask = ones(size(m,1),size(m,2),size(m,3));
+if (nargin < 2)
+    opt = mdm_opt(opt);
+    opt = dtr2d_opt(opt);
 end
 
 % create parameter maps and save them
-
+mfs = mdm_mfs_load(mfs_fn);
 m = mfs.m;
 sz = size(m);
 
@@ -40,66 +29,27 @@ end
 diso = (dpar + 2*dperp)/3;
 daniso = (dpar - dperp)/3;
 ddelta = msf_notfinite2zero(daniso./diso);
-sdaniso = daniso.^2;
-sddelta = msf_notfinite2zero(sdaniso./diso.^2);
+sqdaniso = daniso.^2;
+sqddelta = msf_notfinite2zero(sqdaniso./diso.^2);
 dratio = msf_notfinite2zero(dpar./dperp);
-[dxx,dyy,dzz,dxy,dxz,dyz] = dtd_pars2elements(dpar,dperp,theta,phi);
+[dxx,dyy,dzz,dxy,dxz,dyz] = dtr2d_pars2elements(dpar,dperp,theta,phi);
 
 dtds = struct('w',w,'dpar',dpar,'dperp',dperp,'theta',theta,'phi',phi,'diso',diso,'daniso',daniso,'ddelta',ddelta,...
-    'sdaniso',sdaniso,'sddelta',sddelta,'dratio',dratio,'dxx',dxx,'dyy',dyy,'dzz',dzz,'dxy',dxy,'dxz',dxz,'dyz',dyz,'r2',r2);
+    'sqdaniso',sqdaniso,'sqddelta',sqddelta,'dratio',dratio,'dxx',dxx,'dyy',dyy,'dzz',dzz,'dxy',dxy,'dxz',dxz,'dyz',dyz,'r2',r2);
 
 %ODF nodes
 run_path = mfilename('fullpath');
 framework_path = fileparts(fileparts(fileparts(run_path)));
 angles_path = fullfile(framework_path,'tools','uvec','repulsion_angles_tri');
 
-odf_s.n = opt.dtr2d.odf_nnodes;
+odf_s.n = opt.dtr2d.odf_nnodes; %250, 350, 500, 1000, 3994, or 15970
 angles = load(fullfile(angles_path,num2str(odf_s.n)));
 odf_s.x = sin(angles.theta).*cos(angles.phi);
 odf_s.y = sin(angles.theta).*sin(angles.phi);
 odf_s.z = cos(angles.theta);
 odf_s.tri = angles.tri;
-ODindex = opt.dtr2d.odf_watsonkappa; %Watson distribution smoothing kernel
+ODindex = .05; %Watson distribution smoothing kernel
 odf_s.kappa = 1/tan(ODindex*pi/2);
-
-    function [odf_w, odf_diso, odf_sddelta, odf_r2] = dtds2podf(odf_s, dtds)
-        odf_w = zeros(sz(1), sz(2), sz(3), odf_s.n);
-        odf_diso = zeros(sz(1), sz(2), sz(3), odf_s.n);
-        odf_sddelta = zeros(sz(1), sz(2), sz(3), odf_s.n);
-        odf_r2 = zeros(sz(1), sz(2), sz(3), odf_s.n);
-
-        for nk = 1:sz(3)
-            for nj = 1:sz(2)
-                for ni = 1:sz(1)
-                    if mfs.mask(ni,nj,nk)
-                        %[ni nj nk]
-%                        if n>0
-                            theta_vox = squeeze(dtds.theta(ni,nj,nk,:));
-                            phi_vox = squeeze(dtds.phi(ni,nj,nk,:));
-                            w_vox = squeeze(dtds.w(ni,nj,nk,:));
-                            diso_vox = squeeze(dtds.diso(ni,nj,nk,:));
-                            sddelta_vox = squeeze(dtds.sddelta(ni,nj,nk,:));
-                            r2_vox = squeeze(dtds.r2(ni,nj,nk,:));
-                            odf_d.x = sin(theta_vox).*cos(phi_vox);
-                            odf_d.y = sin(theta_vox).*sin(phi_vox);
-                            odf_d.z = cos(theta_vox);
-                            odf_d.w = w_vox;
-                            odf_d.diso = diso_vox;
-                            odf_d.sddelta = sddelta_vox;
-                            odf_d.r2 = r2_vox;
-                            odf_vox = dist_podf_discrete2smooth(odf_d,odf_s);
-                            odf_w(ni,nj,nk,:) = odf_vox.w(:);   
-                            odf_diso(ni,nj,nk,:) = odf_vox.diso(:);   
-                            odf_sddelta(ni,nj,nk,:) = odf_vox.sddelta(:);   
-                            odf_r2(ni,nj,nk,:) = odf_vox.r2(:);   
-%                        end
-                     end
-                end
-            end
-        end
-
-        %odf_s.norms = vertexNormal(triangulation(odf_s.tri,odf_s.verts),(1:odf_s.n)');
-    end
 
 odf = odf_s;
 %odf_w = dtds2odf(odf_s, dtds);
@@ -110,25 +60,67 @@ for nbin = 1:numel(opt.dtr2d.bin_disomax)
     ind_bin = false([sz(1) sz(2) sz(3) nn 4]);
     ind_bin(:,:,:,:,1) = diso >= opt.dtr2d.bin_disomin(nbin);
     ind_bin(:,:,:,:,2) = diso <= opt.dtr2d.bin_disomax(nbin);
-    ind_bin(:,:,:,:,3) = dratio >= opt.dtr2d.bin_dratiomin(nbin);
-    ind_bin(:,:,:,:,4) = dratio <= opt.dtr2d.bin_dratiomax(nbin);
+    ind_bin(:,:,:,:,3) = sqddelta >= opt.dtr2d.bin_sddeltamin(nbin);
+    ind_bin(:,:,:,:,4) = sqddelta <= opt.dtr2d.bin_sddeltamax(nbin);
     ind_bin = all(ind_bin,5);
+    
+    
 
-    odf_bin.no = nbin;
     dtds_temp = dtds;
     dtds_temp.w = dtds.w.*ind_bin;
-    [odf_w, odf_diso, odf_sddelta, odf_r2] = dtds2podf(odf_s, dtds_temp);
+    
+    odf_w = zeros(sz(1), sz(2), sz(3), odf_s.n);
+    odf_diso = zeros(sz(1), sz(2), sz(3), odf_s.n);
+    odf_sqddelta = zeros(sz(1), sz(2), sz(3), odf_s.n);
+    odf_r2 = zeros(sz(1), sz(2), sz(3), odf_s.n);
+    
+    parfor nk = 1:sz(3)
+        list_w = zeros(sz(1), sz(2), odf_s.n);
+        list_diso = zeros(sz(1), sz(2), odf_s.n);
+        list_sqddelta = zeros(sz(1), sz(2), odf_s.n);
+        list_r2 = zeros(sz(1), sz(2), odf_s.n);
+        for nj = 1:sz(2)
+            for ni = 1:sz(1)
+                if mfs.mask(ni,nj,nk)
+                    theta_vox = squeeze(dtds_temp.theta(ni,nj,nk,:));
+                    phi_vox = squeeze(dtds_temp.phi(ni,nj,nk,:));
+                    w_vox = squeeze(dtds_temp.w(ni,nj,nk,:));
+                    diso_vox = squeeze(dtds_temp.diso(ni,nj,nk,:));
+                    sqddelta_vox = squeeze(dtds_temp.sqddelta(ni,nj,nk,:));
+                    r2_vox = squeeze(dtds_temp.r2(ni,nj,nk,:));
+                    odf_d = struct;
+                    odf_d.x = sin(theta_vox).*cos(phi_vox);
+                    odf_d.y = sin(theta_vox).*sin(phi_vox);
+                    odf_d.z = cos(theta_vox);
+                    odf_d.w = w_vox;
+                    odf_d.diso = diso_vox;
+                    odf_d.sqddelta = sqddelta_vox;
+                    odf_d.r2 = r2_vox;
+                    odf_vox = dist_podf_discrete2smooth(odf_d,odf_s);
+                    
+                    list_w(ni,nj,:) = odf_vox.w(:);
+                    list_diso(ni,nj,:) = odf_vox.diso(:);
+                    list_sqddelta(ni,nj,:) = odf_vox.sqddelta(:);
+                    list_r2(ni,nj,:) = odf_vox.r2(:);
+                    
+%                     odf_w(ni,nj,nk,:) = odf_vox.w(:);
+%                     odf_diso(ni,nj,nk,:) = odf_vox.diso(:);
+%                     odf_sqddelta(ni,nj,nk,:) = odf_vox.sqddelta(:);
+%                     odf_r2(ni,nj,nk,:) = odf_vox.r2(:);
+                    
+                end
+            end
+        end
+        odf_w(:,:,nk,:) = list_w;
+        odf_diso(:,:,nk,:) = list_diso;
+        odf_sqddelta(:,:,nk,:) = list_sqddelta;
+        odf_r2(:,:,nk,:) = list_r2;
+    end
+    
     odf.w_bin{nbin} = odf_w;
     odf.diso_bin{nbin} = odf_diso;
-    odf.sddelta_bin{nbin} = odf_sddelta;
+    odf.sqddelta_bin{nbin} = odf_sqddelta;
     odf.r2_bin{nbin} = odf_r2;
 end
 
-% if (~isempty(odf_fn))
-%     % Save data
-%     msf_mkdir(fileparts(odf_fn));
-%     save(odf_fn, 'odf');
-% end
-
 end
-

@@ -1,10 +1,11 @@
 function res = dtr2d_4d_data2fit(s, mfs_fn, opt)
-% function mfs_fn = dtr2d_4d_data2fit(s, o, opt)
+% function res = dtr2d_4d_data2fit(s, o, opt)
 
 if (nargin < 3), opt = []; end
 
 res = -1;
 
+% Choose experimental points to fit the model
 if opt.do_bootstrap
     ind = opt.bootstrap.ind;
 else

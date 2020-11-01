@@ -1,7 +1,6 @@
 function m = dtr2d_1d_initfit2regfit(signal, xps, opt, ind, dtr2d_nodes)
-% function m = dtr2d_1d_initfit2regfit(signal, xps, opt, ind)
-%
-% Size-shape-orientation diffusion tensor distribution
+% function m = dtr2d_1d_initfit2regfit(signal, xps, opt, ind, dtr2d_nodes)
+
 
 if (nargin < 4), ind = ones(size(signal)) > 0; end
 

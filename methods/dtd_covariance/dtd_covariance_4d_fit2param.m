@@ -88,8 +88,10 @@ dps.mask  = mfs.mask;
 % FA and uFA
 dps.ufa = sqrt(dps.C_mu);
 dps.fa = sqrt(dps.C_M);
-dps.uFA = dps.ufa;
+dps.uFA = double(real(dps.ufa));
 dps.FA = dps.fa;
+
+class(dps.ufa)
 
 % Naming according to size-shape terminology
 dps.mdiso = dps.MD*1e-9; % mean size
@@ -106,10 +108,9 @@ if (opt.dtd_covariance.do_clamping)
     dps.vdiso    = mio_min_max_cut(dps.vdiso, [0 2e-18]);    
 end
 
-b1000 = 1e9;
-dps.s1000 = real(msf_notfinite2zero(dps.s0 .* exp(-b1000 * dps.mdiso + b1000^2 * dps.mdiso.^2.*dps.MKi/6)));
-b2000 = 2e9;
-dps.s2000 = real(msf_notfinite2zero(dps.s0 .* exp(-b2000 * dps.mdiso + b2000^2 * dps.mdiso.^2.*dps.MKi/6)));
+dps.size = dps.mdiso;
+dps.meanshape = dps.nmsdaniso;
+dps.varsize = dps.nvdiso;   
 
 if (~isempty(dps_fn))
     mdm_dps_save(dps, mfs.s, dps_fn, opt);

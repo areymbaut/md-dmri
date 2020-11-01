@@ -1,17 +1,21 @@
-function dtr2d_m2pdf(dps_fn, pdf_path, opt)
+function dtr2d_m2pdf(paths, opt)
 % function dtr2d_m2pdf(dps_fn, pdf_path, opt)
- 
-dps = mdm_dps_load(dps_fn);
-sz = size(dps.m);
-msf_mkdir(pdf_path);
 
-figsize = 5*10*[1 1];
-fs = 5*10;
-lw = 5*1;
-ms_max = 5*2;
+mfs = mdm_mfs_load(paths.mfs_fn);
+dps = mdm_dps_load(paths.dps_fn);
+sz = size(mfs.m);
+if ~isfield(paths,'pdf_path')
+    paths.pdf_path = paths.nii_path;
+end
+msf_mkdir(paths.pdf_path);
+
+figsize = 2*11*[1 1];
+fs = 2*6;
+lw = 2*1;
+ms_max = 2*10;
 
 figaspect = figsize(1)/figsize(2);
-width = 1;
+width = .998;
 height = width*figaspect;
 sub_width = 1/sz(1);
 sub_height = 1/sz(2)*figaspect;
@@ -20,7 +24,41 @@ s0max = max(reshape(dps.s0,numel(dps.s0),1));
 w_threshold = 0;
 s0_threshold = 0;
 
-clim = .9*s0max*[0 1];
+figure(1), clf
+%set(gcf, 'PaperUnits','centimeters', 'PaperPosition', min(sz(1:2))/16*[0 0 figsize],'PaperSize', min(sz(1:2))/16*figsize);
+set(gcf, 'PaperUnits','centimeters', 'PaperPosition', [0 0 figsize],'PaperSize', figsize);
+
+left = 0;
+bottom = 0;
+axes('position',[left bottom width height])
+
+
+if isfield(opt, 'k_range')
+    nk = opt.k_range; 
+else
+    nk = round(sz(3)/2);
+end
+if isfield(opt,'nj_range')
+    nj_range = opt.nj_range;
+else
+    nj_range =  1:sz(2);
+end
+if isfield(opt,'ni_range')
+    ni_range = opt.ni_range;
+else
+    ni_range =  1:sz(1);
+end
+
+
+z = squeeze(dps.s0(:,:,nk))';
+% indx = find(z>0);
+% z(indx) = 1./z(indx);
+clim = max(z(:))*[0 1];
+imagesc(z)
+set(gca,'YDir','normal','CLim',clim)
+axis off
+colormap('gray')
+hold on
 
 dmin = opt.dtr2d.dmin;
 dmax = opt.dtr2d.dmax;
@@ -36,40 +74,13 @@ ymax = log10(ratiomax);
 zmin = log10(r2min);
 zmax = log10(r2max);
 
-if isfield(opt,'nk_range')
-    nk_range = opt.nk_range;
-else
-    nk_range =  1:sz(3);
-end
-if isfield(opt,'nj_range')
-    nj_range = opt.nj_range;
-else
-    nj_range =  1:sz(2);
-end
-if isfield(opt,'ni_range')
-    ni_range = opt.ni_range;
-else
-    ni_range =  1:sz(1);
-end
-
-for nk = nk_range
-    figure(1), clf
-    set(gcf, 'PaperUnits','centimeters', 'PaperPosition', [0 0 figsize],'PaperSize', figsize);
-    left = 0;
-    bottom = 0;
-    axes('position',[left bottom width height])
-    z = squeeze(dps.s0(:,:,nk))';
-    imagesc(z)
-    set(gca,'YDir','normal','CLim',clim)
-    axis off
-    colormap('gray')
-    hold on
+% %for nk = 1:sz(3)
     for nj = nj_range
         for ni = ni_range
             if dps.mask(ni,nj,nk)
-                m = squeeze(dps.m(ni,nj,nk,:))';
+                m = squeeze(mfs.m(ni,nj,nk,:))';
                 s0 = dps.s0(ni,nj,nk);
-                if s0 > s0_threshold*s0max
+                if s0 >= s0_threshold*s0max
                     dtr2d = dtr2d_m2dtr2d(m);
                     [n,par,perp,theta,phi,r2,w] = dtr2d_dist2par(dtr2d);
                     if n>0
@@ -107,12 +118,12 @@ for nk = nk_range
              end
         end
     end
-% eval(['print ' pdf_path '/dtr2d_2Dmap -loose -dpdf'])
-eval(['print ' pdf_path '/dtr2d_2Dmap' num2str(nk) ' -loose -dpng -r300'])
-pause(1)
-end
+% %end
 
-return
+% eval(['print ' pdf_path '/dtr2d_2Dmap -loose -dpdf'])
+eval(['print ' paths.pdf_path '/dtr2d_2Dmap -loose -dpng -r300'])
+pause(1.5)
+
 
 figure(2), clf
 set(gcf, 'PaperUnits','centimeters', 'PaperPosition', 1*[0 0 figsize],'PaperSize', figsize);
@@ -126,7 +137,7 @@ axis(axh2,'square'), axis(axh3,'square'), axis(axh4,'square')
     for nj = nj_range
         for ni = ni_range
             if dps.mask(ni,nj,nk)
-                m = squeeze(dps.m(ni,nj,nk,:))';
+                m = squeeze(mfs.m(ni,nj,nk,:))';
                 s0 = dps.s0(ni,nj,nk);
                 if s0 > s0_threshold*s0max
                     dtr2d = dtr2d_m2dtr2d(m);
@@ -168,19 +179,19 @@ set([axh2; axh3; axh4],'TickDir','out','TickLength',.03*[1 1],...
 'FontSize',fs,'LineWidth',lw,'Box','on')
 
 set(axh2,'XLim',[xmin xmax]+.2*(xmax-xmin)*[-1 1], 'YLim',[ymin ymax]+.2*(ymax-ymin)*[-1 1],...
-'XTick',[-11:1:-8],'YTick',-2:2)
+'XTick',[-11:.5:-8],'YTick',-2:2)
 xlabel(axh2,'log(\itD\rm_{iso} / m^2s^-^1)','FontSize',fs)
 ylabel(axh2,'log(\itD\rm_{||} / \itD\rm_{\perp})','FontSize',fs)
 
 set(axh3,'XLim',[xmin xmax]+.2*(xmax-xmin)*[-1 1], 'YLim',[zmin zmax]+.2*(zmax-zmin)*[-1 1],...
-'XTick',[-11:1:-8],'YTick',0:.5:2.5,'XTickLabel','')
+'XTick',[-11:1:-8],'YTick',0:.5:1.5,'XTickLabel','')
 ylabel(axh3,'log(\itR\rm_{2} / s^-^1)','FontSize',fs)
 
 set(axh4,'XLim',[zmin zmax]+.2*(zmax-zmin)*[-1 1], 'YLim',[ymin ymax]+.2*(ymax-ymin)*[-1 1],...
-'XTick',[0:.5:2.5],'YTick',-2:2,'YTickLabel','')
+'XTick',[0:.5:1.5],'YTick',-2:2,'YTickLabel','')
 xlabel(axh4,'log(\itR\rm_{2} / s^-^1)','FontSize',fs)
 
-eval(['print ' pdf_path '/dtr2d_global -loose -dpdf'])
+eval(['print ' paths.pdf_path '/dtr2d_global -loose -dpdf'])
 
 % ptot = sum(sum(sum(p,1),2),3);
 % z = reshape(ptot,[nx ny]);

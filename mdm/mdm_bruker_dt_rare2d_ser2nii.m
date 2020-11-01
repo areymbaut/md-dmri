@@ -28,15 +28,10 @@ tdim.tot = td/2*td1;
 
 %%read time domain data and pick out relevant signal points
 fid = fopen([data_path '/ser'],'r','ieee-le');
-% if any(strcmp(NMRacqus.pulprog,{'DT_axderare2d','SM_moacrare2drs'}))
-    Std1 = fread(fid,[2,tdim.tot],'long')';
-% elseif any(strcmp(NMRacqus.pulprog,{'DT_axderare2d_av4'}))
-%     Std1 = fread(fid,[2,tdim.tot],'float64')';
-% end
-%figure(1), clf, plot(1:numel(Std1),Std1(:)), return
-
+Std1 = fread(fid,[2,tdim.tot],'long')';
 Std1 = Std1(:,1) + 1i*Std1(:,2);
 fclose(fid);
+
 Std1 = reshape(Std1,td/2,td1);
 S = Std1(:,1);
 
@@ -203,7 +198,7 @@ for ninc = 1:Ninc
         end
         I = fftshift(fft(ifftshift(S,1),[],1),1);
         if isfield(NMRacqus,'fq1')
-            phcorrfun.j = repmat(exp(1i*2*pi*fq1list(ntd1)/fqcycle*((1:tdim.j)-tdim.j/2-1)),[nudim.i 1]);
+            phcorrfun.j = repmat(exp(i*2*pi*fq1list(ntd1)/fqcycle*((1:tdim.j)-tdim.j/2-1)),[nudim.i 1]);
             I = phcorrfun.j.*I;
         end
         if nudim.j > tdim.j

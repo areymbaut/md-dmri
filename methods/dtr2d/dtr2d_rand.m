@@ -1,4 +1,6 @@
 function dtr2d_nodes = dtr2d_rand(n,dmin,dmax,r2min,r2max)
+% Generates n random nodes in the 5D D-R2 space. The generated nodes are
+% organized in a single vector
 
 par = dmin*(dmax/dmin).^rand(1,n);
 perp = dmin*(dmax/dmin).^rand(1,n);

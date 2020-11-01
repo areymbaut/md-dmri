@@ -46,20 +46,22 @@ if n > 0
     maniso = aniso_v'*w/s0;
     vaniso = (aniso_v-maniso)'.^2*w/s0;
     saniso_v = aniso_v.^2;
-    msaniso = sqaniso_v'*w/s0;
-    vsaniso = (sqaniso_v-msqaniso)'.^2*w/s0; 
+    msaniso = saniso_v'*w/s0;
+    vsaniso = (saniso_v-msaniso)'.^2*w/s0; 
     
     %Normalized with miso
     viso_n = viso./miso^2;
-    msqaniso_n = msqaniso./miso^2;
+    msqaniso_n = msaniso./miso^2;
 
     dps.s0 = s0;
     dps.miso = miso;
     dps.viso = viso;
     dps.maniso = maniso;
     dps.vaniso = vaniso;
-    dps.msqaniso = msqaniso;
-    dps.vsqaniso = vsqaniso;
+    dps.msqaniso = msaniso;
+    dps.vsqaniso = vsaniso;
+    dps.viso_n = viso_n;
+    dps.msqaniso_n = msqaniso_n;
 
     [dtd_nx6,w] = dtd_dist2nx6w(dtd);
     dt1x6 = (dtd_nx6'*w)'/s0;

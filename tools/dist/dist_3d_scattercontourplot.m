@@ -14,8 +14,6 @@ g = dist_d.g(:);
 b = dist_d.b(:);
 c = repmat(dist_d.bright(:),[1 3]).*[r g b];
 
-axes(hax)
-
 if ~isfield(axpars,'no_scatter')
     hscatter = scatter3(hax,x,y,z,a,c);
     set(hscatter,'LineWidth',lw_plot)

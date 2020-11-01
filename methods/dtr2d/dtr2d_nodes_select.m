@@ -1,4 +1,5 @@
 function dtr2d_nodes_out = dtr2d_nodes_select(dtr2d_nodes,ind)
+% Picks out the nodes with index 'ind'
 
 [n,par,perp,theta,phi,r2] = dtr2d_nodes2par(dtr2d_nodes);
 

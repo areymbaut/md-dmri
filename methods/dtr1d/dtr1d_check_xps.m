@@ -5,8 +5,7 @@ function dtr1d_check_xps(xps, opt)
 
 mdm_xps_check(xps);
 
-required_fields = {...
-    'bt','tr'};
+required_fields = {'bt','tr'};
 
 for c = 1:numel(required_fields)
     if (~isfield(xps, required_fields{c}))

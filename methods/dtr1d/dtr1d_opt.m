@@ -10,18 +10,20 @@ opt.(method).present = 1;
 opt.(method) = msf_ensure_field(opt.(method), 'tmp', 1); 
 opt.(method) = msf_ensure_field(opt.(method), 'do_plot', 0);
 opt.(method) = msf_ensure_field(opt.(method), 'ind_start', 1);
-opt.(method) = msf_ensure_field(opt.(method), 'dmin', 5e-12);
+opt.(method) = msf_ensure_field(opt.(method), 'dmin', 5e-11);
 opt.(method) = msf_ensure_field(opt.(method), 'dmax', 5e-9);
-opt.(method) = msf_ensure_field(opt.(method), 'r1min', 0.1);
-opt.(method) = msf_ensure_field(opt.(method), 'r1max', 2);
+opt.(method) = msf_ensure_field(opt.(method), 'r1min', 0.1); % 0.1
+opt.(method) = msf_ensure_field(opt.(method), 'r1max', 2); % 2
 opt.(method) = msf_ensure_field(opt.(method), 'n_in', 2e2); % n_in: Number of nodes in NNLS inversion. [100 - 1000]
-opt.(method) = msf_ensure_field(opt.(method), 'n_out', 20);
+opt.(method) = msf_ensure_field(opt.(method), 'n_out', 50);
 opt.(method) = msf_ensure_field(opt.(method), 'n_kill', 0);
-opt.(method) = msf_ensure_field(opt.(method), 'n_proliferation', 20);
-opt.(method) = msf_ensure_field(opt.(method), 'n_extinction', 20);
+opt.(method) = msf_ensure_field(opt.(method), 'n_proliferation', 30);
+opt.(method) = msf_ensure_field(opt.(method), 'n_extinction', 30);
 opt.(method) = msf_ensure_field(opt.(method), 'ofuzz', .1*2*pi);
 opt.(method) = msf_ensure_field(opt.(method), 'dfuzz', .1);
 opt.(method) = msf_ensure_field(opt.(method), 'r1fuzz', .1);
+
+opt.(method) = msf_ensure_field(opt.(method), 't1_weighting', 'saturation'); % 'spin_echo', 'saturation'
 
 opt.(method) = msf_ensure_field(opt.(method), 'fig_maps', ...
     {'s0','mdiso','msddelta','mr1','vdiso','vsddelta','vr1'});

@@ -10,7 +10,7 @@ if (nargin < 4), opt.present = 1; end
 
 opt = mdm_opt(opt);
 
-msf_log(['Starting ' mfilename], opt);    
+% msf_log(['Starting ' mfilename], opt);    
 
 if (~iscell(mfs_fn))
     assert(~strcmp(mfs_fn, dps_fn), 'pats.mfs_fn and dps_fn must be different');

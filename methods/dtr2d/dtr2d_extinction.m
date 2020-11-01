@@ -1,6 +1,7 @@
 function dtr2d = dtr2d_extinction(stemp, bt_mx6, te, dtr2d, opt)
+% 
 
-n_nodes = opt.dtr2d.n_in;
+n_nodes = opt.dtr2d.n_in; % number of nodes
 n_extinction = opt.dtr2d.n_extinction;
 
 for niter = 1:n_extinction    
@@ -9,7 +10,10 @@ for niter = 1:n_extinction
 
     dtr2d_nodes1 = dtr2d_dist2nodes(dtr2d);
     ind = 1:n_max;
+    
+    % pick the n_max sols with higher weights
     dtr2d_nodes1 = dtr2d_nodes_select(dtr2d_nodes1,ind);
+    
     ind = 1 + floor((n_max-1)*linspace(0,1,n_nodes).^3);
     ind(ind<1) = 1;
     %dtr2d_nodes1(1)
@@ -19,11 +23,18 @@ for niter = 1:n_extinction
         break
     end
     
+    % extends dtr2r1d_nodes1 to a second vector (dtr2r1d_nodes2) containing 
+    % n_nodes entries. The values from dtr2r1d_nodes2 are selected with replacement 
+    % from dtr2r1d_nodes1, and are biased towards nodes corresponding to higher weights 
     dtr2d_nodes2 = dtr2d_nodes_select(dtr2d_nodes1,ind);
+   
+    % induce small mutations in the nodes within the dtr2r1d_nodes2 set
     dtr2d_nodes2 = dtr2d_nodes_mutate(dtr2d_nodes2,opt);
-
+    
+    % merge the original nodes with their mutations
     dtr2d_nodes = dtr2d_nodes_merge(dtr2d_nodes1,dtr2d_nodes2);
 
+    % Fit to data
     dtr2d = dtr2d_data2dtr2d(stemp,bt_mx6,te,dtr2d_nodes);    
 end
 

@@ -1,10 +1,11 @@
-function dtr2d = dtr2d_par2dist(par,perp,theta,phi,r2,w)
+function dtd = dtr2d_par2dist(par,perp,theta,phi,R2,w)
 
 n = numel(par);
 
 if n>0
-    dtr2d = [par'; perp'; theta'; phi'; r2'; w'];
-    dtr2d = [n; dtr2d(:)];
+    dtd = [par'; perp'; theta'; phi'; R2'; w'];
+    dtd = [n; dtd(:)];
 else
-    dtr2d = [];
+    dtd = [];
 end
+

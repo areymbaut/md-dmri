@@ -45,7 +45,7 @@ dps.MKt  = dps.MKi + dps.MKa;                   %
 dps.MKad = (6/5) * dps.V_shear ./ max(dps.V_MD2, reg);    % anisotropy and dispersion
 dps.MK   = dps.MKad + dps.MKi;                  % conventional kurtosis
 dps.MKd  = dps.MKa - dps.MKad;                  % conventional kurtosis
-dps.uFA  = sqrt(dps.C_mu);
+dps.uFA  = double(real(sqrt(dps.C_mu)));
 
 
 dps.S_I = sqrt(dps.V_MD .* (dps.V_MD > 0));

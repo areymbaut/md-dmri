@@ -1,4 +1,5 @@
 function dtr2d_nodes = dtr2d_nodes_merge(dtr2d_nodes1,dtr2d_nodes2)
+% Merges dtr2d_nodes1 and dtr2d_nodes2 in a single vector dtr2d_nodes
 
 [n1,par1,perp1,theta1,phi1,r21] = dtr2d_nodes2par(dtr2d_nodes1);
 [n2,par2,perp2,theta2,phi2,r22] = dtr2d_nodes2par(dtr2d_nodes2);

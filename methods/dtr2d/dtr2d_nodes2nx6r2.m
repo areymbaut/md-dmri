@@ -1,4 +1,6 @@
 function [dtr2d_nx6,r2] = dtr2d_nodes2nx6r2(dtr2d_nodes)
+% Separates the relaxation and diffusion nodes in dtr2d_nodes.
+% The various diffusion tensor parameters are combined in a vector dtr2d_nx6 written in Mandel notation.
 
 [n,par,perp,theta,phi,r2] = dtr2d_nodes2par(dtr2d_nodes);
 
