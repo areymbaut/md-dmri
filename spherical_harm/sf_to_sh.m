@@ -164,20 +164,20 @@ if FLAG_double_relaxation
         diso_vox = squeeze(diso(v,:));
         sqddelta_vox = squeeze(sqddelta(v,:));
         
-        SH_coeffs_map(v,:) = pinv_SH_matrix*w_vox;
-        SH_coeffs_map_normalized(v,:) = pinv_SH_matrix*w_vox_normalized;
-        SH_coeffs_diso_map(v,:) = pinv_SH_matrix*diso_vox;
-        SH_coeffs_sqddelta_map(v,:) = pinv_SH_matrix*sqddelta_vox;
+        SH_coeffs_map(v,:) = pinv_SH_matrix*w_vox';
+        SH_coeffs_map_normalized(v,:) = pinv_SH_matrix*w_vox_normalized';
+        SH_coeffs_diso_map(v,:) = pinv_SH_matrix*diso_vox';
+        SH_coeffs_sqddelta_map(v,:) = pinv_SH_matrix*sqddelta_vox';
         
         r1_vox = squeeze(r1(v,:));
         t1_vox = squeeze(t1(v,:));
-        SH_coeffs_r1_map(v,:) = pinv_SH_matrix*r1_vox;
-        SH_coeffs_t1_map(v,:) = pinv_SH_matrix*t1_vox;
+        SH_coeffs_r1_map(v,:) = pinv_SH_matrix*r1_vox';
+        SH_coeffs_t1_map(v,:) = pinv_SH_matrix*t1_vox';
         
         r2_vox = squeeze(r2(v,:));
         t2_vox = squeeze(t2(v,:));
-        SH_coeffs_r2_map(v,:) = pinv_SH_matrix*r2_vox;
-        SH_coeffs_t2_map(v,:) = pinv_SH_matrix*t2_vox;
+        SH_coeffs_r2_map(v,:) = pinv_SH_matrix*r2_vox';
+        SH_coeffs_t2_map(v,:) = pinv_SH_matrix*t2_vox';
     end
 elseif FLAG_relaxation
     parfor v = 1:N
@@ -186,15 +186,15 @@ elseif FLAG_relaxation
         diso_vox = squeeze(diso(v,:));
         sqddelta_vox = squeeze(sqddelta(v,:));
         
-        SH_coeffs_map(v,:) = pinv_SH_matrix*w_vox;
-        SH_coeffs_map_normalized(v,:) = pinv_SH_matrix*w_vox_normalized;
-        SH_coeffs_diso_map(v,:) = pinv_SH_matrix*diso_vox;
-        SH_coeffs_sqddelta_map(v,:) = pinv_SH_matrix*sqddelta_vox;
+        SH_coeffs_map(v,:) = pinv_SH_matrix*w_vox';
+        SH_coeffs_map_normalized(v,:) = pinv_SH_matrix*w_vox_normalized';
+        SH_coeffs_diso_map(v,:) = pinv_SH_matrix*diso_vox';
+        SH_coeffs_sqddelta_map(v,:) = pinv_SH_matrix*sqddelta_vox';
         
         r_vox = squeeze(r(v,:));
         t_vox = squeeze(t(v,:));
-        SH_coeffs_r_map(v,:) = pinv_SH_matrix*r_vox;
-        SH_coeffs_t_map(v,:) = pinv_SH_matrix*t_vox;    
+        SH_coeffs_r_map(v,:) = pinv_SH_matrix*r_vox';
+        SH_coeffs_t_map(v,:) = pinv_SH_matrix*t_vox';    
     end
 else
     parfor v = 1:N
@@ -203,10 +203,10 @@ else
         diso_vox = squeeze(diso(v,:));
         sqddelta_vox = squeeze(sqddelta(v,:));
         
-        SH_coeffs_map(v,:) = pinv_SH_matrix*w_vox;
-        SH_coeffs_map_normalized(v,:) = pinv_SH_matrix*w_vox_normalized;
-        SH_coeffs_diso_map(v,:) = pinv_SH_matrix*diso_vox;
-        SH_coeffs_sqddelta_map(v,:) = pinv_SH_matrix*sqddelta_vox;   
+        SH_coeffs_map(v,:) = pinv_SH_matrix*w_vox';
+        SH_coeffs_map_normalized(v,:) = pinv_SH_matrix*w_vox_normalized';
+        SH_coeffs_diso_map(v,:) = pinv_SH_matrix*diso_vox';
+        SH_coeffs_sqddelta_map(v,:) = pinv_SH_matrix*sqddelta_vox';   
     end
 end
 
