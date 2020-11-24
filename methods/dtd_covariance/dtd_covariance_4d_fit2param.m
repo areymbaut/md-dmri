@@ -91,8 +91,6 @@ dps.fa = sqrt(dps.C_M);
 dps.uFA = double(real(dps.ufa));
 dps.FA = dps.fa;
 
-class(dps.ufa)
-
 % Naming according to size-shape terminology
 dps.mdiso = dps.MD*1e-9; % mean size
 dps.nmsdaniso = dps.MKa/3*5/4; % normalized mean-square shape
