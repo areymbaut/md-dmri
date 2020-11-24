@@ -1,5 +1,9 @@
-% X: denoised matrix, s2: original noise variance, p: number of signal components, s2_after: noise variance after denoising
-function [X,s2,p,s2_after] = MP_PCA_denoiseMatrix(X) 
+function [X,s2_before,s2_after,p] = MP_PCA_denoiseMatrix(X) 
+% X: denoised matrix
+% s2: original noise variance
+% s2_after: noise variance after denoising
+% p: number of signal components
+
 M = size(X,1);
 N = size(X,2);
 if M<N
@@ -22,6 +26,6 @@ elseif M<N
 else
     X = X*U(:,1:p)*U(:,1:p)';
 end
-s2 = csum(p+1)/((M-p)*(N-p));
-s2_after = s2 - csum(p+1)/(M*N);
+s2_before = csum(p+1)/((M-p)*(N-p));
+s2_after = s2_before - csum(p+1)/(M*N);
 end

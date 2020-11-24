@@ -1,4 +1,4 @@
-function [denoised,S,P] = MP_PCA_denoise(image,window,mask)
+function [denoised,S_before,S_after,P] = MP_PCA_denoise(image,window,mask)
 % Marchenko-Pastur Principal Component Analysis (MP-PCA) denoising
 % J. Veraart, "Denoising of diffusion MRI using random matrix theory"
 % Modified from the original algorithm as found on Sune Jespersen's GitHub page: https://github.com/sunenj 
@@ -7,12 +7,12 @@ function [denoised,S,P] = MP_PCA_denoise(image,window,mask)
 % image:  images to be denoised. Must have 3 or 4 indices with MRI images 
 %         along the last index and voxels in the first 2 or 3.
 % window: sliding window
-% mask:   is true for all voxels per default but can be manually set to
-%         mask out regions.
+% mask:   is true for all voxels per default but can be manually set to mask out regions.
 %
 % output:
 % denoised: denoised images
-% S:        map of estimated noise standard deviation variance
+% S_before: map of estimated noise standard deviation variance before denoising
+% S_after:  map of estimated noise standard deviation variance after denoising
 % P:        number of detected signal principal components
 
 %% adjust image dimensions and assert
@@ -33,7 +33,8 @@ end
 %% denoise image
 denoised = zeros(size(image));
 P = zeros(dims(1:3));
-S2 = zeros(dims(1:3));
+S2_before = zeros(dims(1:3));
+S2_after = zeros(dims(1:3));
 M = dims(1)-window(1)+1;
 N = dims(2)-window(2)+1;
 O = dims(3)-window(3)+1;
@@ -57,13 +58,14 @@ for index = 0:M*N*O-1
     maskX = logical(maskX);
     
     % denoise X
-    [X(:,maskX),s2,p] = MP_PCA_denoiseMatrix(X(:,maskX));
+    [X(:,maskX),s2_before,s2_after,p] = MP_PCA_denoiseMatrix(X(:,maskX));
 
     % assign
     X(:,~maskX) = 0;
     denoised(rows,cols,slis,:) = denoised(rows,cols,slis,:) + reshape(X',[window dims(4)]);
     P(rows,cols,slis) = P(rows,cols,slis) + p;
-    S2(rows,cols,slis) = S2(rows,cols,slis) + s2;
+    S2_before(rows,cols,slis) = S2_before(rows,cols,slis) + s2_before;
+    S2_after(rows,cols,slis) = S2_after(rows,cols,slis) + s2_after;
     count(rows,cols,slis) = count(rows,cols,slis) + 1;
 end
 
@@ -71,17 +73,21 @@ skipped = count==0 | ~mask;
 denoised = denoised + image.*skipped; % Assign original data to denoisedImage outside of mask and at skipped voxels
 count(count==0) = 1;
 denoised = denoised./count;
+S2_before = S2_before./count;
+S2_after = S2_after./count;
 P = P./count;
-S2 = S2./count;
-P(~mask) = nan;
-S2(~mask) = nan;
 
+S2_before(~mask) = nan;
+S2_after(~mask) = nan;
+P(~mask) = nan;
 
 %% adjust output to match input dimensions
 denoised = reshape(denoised, dimsOld);
 P = reshape(P,dimsOld(1:end-1));
-S2 = reshape(S2,dimsOld(1:end-1));
-S = sqrt(S2);
+S2_before = reshape(S2_before,dimsOld(1:end-1));
+S2_after = reshape(S2_after,dimsOld(1:end-1));
+S_before = sqrt(S2_before);
+S_after = sqrt(S2_after);
 
 end
 
